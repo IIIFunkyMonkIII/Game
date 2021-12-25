@@ -39,6 +39,7 @@ using itemClass_t = std::string;	//Typ av item du håller eller vill plocka upp.
 
 struct Item
 {
+	bool itemAvailability{ true };
 	itemClass_t itemClass{};
 	std::string itemName{};
 
@@ -48,7 +49,7 @@ struct Item
 
 struct Room					//Innehåll i rum
 {
-	std::string items[5]{}; // Dynamisk Array här sen **************************************************
+	Item items[5]{}; // Dynamisk Array här sen **************************************************
 
 
 
@@ -57,8 +58,8 @@ struct Room					//Innehåll i rum
 
 //Global struct initalizations
 Character oscar;
-
 Room closetContent;
+
 
 
 //Forward Declarations
@@ -121,16 +122,20 @@ void start()
 
 }
 
-void command()
+void command(Room content)
 {
 	std::string currentCommand{};
 	std::cin.ignore(1000);
 	getline(std::cin, currentCommand);
 
 	if (currentCommand == "pick up")
-	{
-		std::cout << "You have picked up: ";
-
+	{													//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
+		if (content.items[0].itemAvailability == true)
+		{
+			oscar.backpack = true;
+			oscar.itemName = content.items[0].itemName;
+			content.items[0].itemAvailability == false;
+		}
 	}
 }
 
@@ -156,7 +161,10 @@ void closet()
 		case 1:
 		{
 			oscar.firstTimeInCloset = false;
-			closetContent.items[0] = "boxers";
+
+			//Closet start item
+			closetContent.items[0].itemName = "boxers";
+			closetContent.items[0].itemClass = "backpack";
 
 			std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
 				<< "You see a pair of bamboo boxershorts that your uncle manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
@@ -165,6 +173,15 @@ void closet()
 				<< "Now try pick upp and drop the boxers\n" << '\n';
 
 		}
+		case 2:
+		{
+			while (oscar.backpack != true)
+			{
+				command(closetContent);
+			}
+		
+		}
+
 
 		}
 
