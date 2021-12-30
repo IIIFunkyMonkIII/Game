@@ -12,21 +12,37 @@ int currentRoomDialogSegment{ 1 };	// The dialog segment
 
 
 //Structs
+struct Backpack
+{
+	bool itemSlotFull{};
+	std::string itemName{};
+	std::string itemAbility{};
+};
+
+struct Weapon
+{
+	bool weaponSlotFull{};			//you smited svante into oblivion with the power of love you get 1+ thaikub but loose the power of love ability
+	std::string weaponName{};
+	int weaponDamage{};
+};
+
+struct Potion
+{
+	bool potionSlotFull{};
+	std::string potionName{};
+	int potionCount{};
+};
+
+
 struct Character					//Oscar
 {
 	std::string name{ "Oscar Riverbranch" };
 
-	bool weaponSlot{ true };			//you smited svante into oblivion with the power of love you get 1+ thaikub but loose the power of love ability
-	std::string weaponName{ "Power of Love" };
-	int weaponDamage{ 1000 };
+	Weapon weapon{true, "Power of Love", 1000};		//you smited svante into oblivion with the power of love you get 1+ thaikub but loose the power of love ability
 
-	bool potionSlot{};
-	std::string potionName{};
-	int potionCount{};
+	Backpack backpack;
 
-	bool backpack{};
-	std::string itemName{};
-	std::string itemAbility{};
+	Potion potion;
 
 	int maxHealth{ 1 };
 	int maxStamina{};
@@ -122,21 +138,52 @@ void start()
 
 }
 
-void command(Room content)
+void command(Room roomContent) // **************' Gör så att man kan ändra room content globalt istället för att ha det i en funktion för att passa med referens sög lite puck
 {
 	std::string currentCommand{};
 	std::cin.ignore(1000);
 	getline(std::cin, currentCommand);
+	
+	std::string wholeCommand{};
+	int contentArraySize{ (5 - 1) };					//gör till dynamisk array eller vector.
 
-	if (currentCommand == "pick up")
-	{													//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
-		if (content.items[0].itemAvailability == true)
-		{
-			oscar.backpack = true;
-			oscar.itemName = content.items[0].itemName;
-			content.items[0].itemAvailability == false;
+	for (int loop{0}; loop < contentArraySize; loop++) // pick up command
+	{
+
+		wholeCommand = ("pick up " + roomContent.items[loop].itemName); //Gäller nu for saker av typ Item men behöver göras olika funktioner för vapen och trolldrycker
+
+		if (currentCommand == wholeCommand)
+		{													//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
+			if (roomContent.items[loop].itemAvailability == true)
+			{
+					oscar.backpack.itemSlotFull = true;						//ryggsäck nu full
+					oscar.backpack.itemName = roomContent.items[0].itemName;	//den innehåller en item som heter 
+					roomContent.items[0].itemAvailability == false;	//itemet finns nu inte tillgängligt i rummet
+
+					std::cout << "Your xxx olympics backpack now contains " << oscar.backpack.itemName;
+			}
+			else
+			{
+				std::cerr << "That item isn't available! \n";
+			}
 		}
 	}
+
+	if (currentCommand == "empty backpack")
+	{
+		if (oscar.backpack.itemSlotFull == true)
+		{
+			oscar.backpack.itemSlotFull = false;
+			oscar.backpack.itemName = "";
+			oscar.backpack.itemAbility = "";
+		}
+		ëlse
+		{
+			std::cout << "Your backpack is already empty! \n";
+		}
+	}
+
+
 }
 
 void roomList() // rumLista för att navigera genom alla rum.
@@ -168,20 +215,35 @@ void closet()
 
 			std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
 				<< "You see a pair of bamboo boxershorts that your uncle manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
-				<< "This item is of type " << '\n' // continue
-				<< "You only have one itemslot in your xxx olypics back pack if you wish to pick up another item write empty back pack and then pick up..." << '\n'
+				<< "This item is of type " << '\n' << closetContent.items[0].itemClass;
+				<< "You only have one itemslot in your xxx olypics backpack if you wish to pick up another item write empty backpack and then pick up..." << '\n'
 				<< "Now try pick upp and drop the boxers\n" << '\n';
 
+				currentRoomDialogSegment += 1;
 		}
 		case 2:
 		{
-			while (oscar.backpack != true)
+			while (oscar.backpack.itemSlotFull != true)
 			{
 				command(closetContent);
+				
 			}
-		
+			
+			std::cout << "Good you picked up the boxers, now try to drop them again \n";
+			currentRoomDialogSegment += 1;
 		}
+		case 3: 
+		{
+			while (oscar.backpack.itemSlotFull != false)
+			{
+				command(closetContent);
 
+			}
+
+			std::cout << "Good you dropped the underware. You don't want to walk around with those all the time.";
+			currentRoomDialogSegment += 1;
+
+		}
 
 		}
 
