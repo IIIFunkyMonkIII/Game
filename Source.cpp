@@ -111,6 +111,7 @@ void start()
 	{
 		std::cout << "Enter the word " << '"' << "start" << '"' << " to start the game: ";
 		std::cin >> temp;
+		
 
 		if (std::cin.fail())
 		{
@@ -136,40 +137,72 @@ void start()
 
 }
 
-void command(Room roomContent) // **************' Gör så att man kan ändra room content globalt istället för att ha det i en funktion för att passa med referens sög lite puck
+void command(Room roomContent)
 {
-	std::cin.ignore(1);
-
 	std::string currentCommand{};
 	getline(std::cin, currentCommand);
-	std::cout << currentCommand;
 	std::string wholeCommand{};
 	int contentArraySize{ 5 };//gör till dynamisk array eller vector.
 
-	for (int loop{0}; loop < contentArraySize; loop++) // pick up command
+	// gör en if för om början på commando == pick up
+	if (currentCommand.substr(0, 7) == "pick up")								// pick up command
 	{
-
-		wholeCommand = ("pick up " + roomContent.items[loop].itemName); //Gäller nu for saker av typ Item men behöver göras olika funktioner för vapen och trolldrycker
-
-		if (currentCommand == wholeCommand)
-		{													//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
-			if (roomContent.items[loop].itemAvailability == true)
-			{
-					oscar.backpack.itemSlotFull = true;						//ryggsäck nu full
-					oscar.backpack.itemName = roomContent.items[0].itemName;	//den innehåller en item som heter 
-					roomContent.items[0].itemAvailability = false;	//itemet finns nu inte tillgängligt i rummet
-
-					std::cout << "Your xxx olympics backpack now contains" << oscar.backpack.itemName << '\n';
-			}
-			else
-			{
-					std::cerr << "Your back pack is full. Empty the backpack and then try again! \n";
-			}
-		}
-		if (currentCommand != "pick up " && currentCommand ) // fortsätt
+		for (int loop{ 0 }; loop < contentArraySize; loop++)					//Loop för att jämföra items
 		{
-			std::cerr << "That item isn't available! \n";
-		}
+			wholeCommand = ("pick up " + roomContent.items[loop].itemName);		//Gäller nu for saker av typ Item men behöver göras olika funktioner för vapen och trolldrycker
+
+			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "backpack")
+			{																	//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
+				if (oscar.backpack.itemSlotFull == true)
+				{
+					std::cerr << "Your back pack is full. Empty the backpack and then try again! \n";
+				}
+				else if (roomContent.items[loop].itemAvailability == true && oscar.backpack.itemSlotFull == false)
+				{				
+					oscar.backpack.itemSlotFull = true;							//ryggsäck nu full
+					oscar.backpack.itemName = roomContent.items[loop].itemName;	//den innehåller en item som heter 
+					roomContent.items[loop].itemAvailability = false;				//itemet finns nu inte tillgängligt i rummet
+
+					std::cout << "Your xxx olympics backpack now contains " << oscar.backpack.itemName << '\n';
+				}
+			}	
+
+			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "weapon")
+			{																	//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
+				if (oscar.backpack.itemSlotFull == true)
+				{
+					std::cerr << "You are already holding a weapon. Drop it and try again! \n";
+				}
+				else if (roomContent.items[loop].itemAvailability == true && oscar.weapon.weaponSlotFull == false)
+				{
+					oscar.weapon.weaponSlotFull = true;							//ryggsäck nu full
+					oscar.weapon.weaponName = roomContent.items[0].itemName;	//den innehåller en item som heter 
+					roomContent.items[loop].itemAvailability = false;			//itemet finns nu inte tillgängligt i rummet
+
+					std::cout << "Your hand now contains" << oscar.weapon.weaponName << '\n';
+				}
+
+
+			}
+
+			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "potion")
+			{																	//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
+				if (oscar.potion.potionSlotFull == true)
+				{
+					std::cerr << "Your back pack is full. Empty the backpack and then try again! \n";
+				}
+				else if (roomContent.items[loop].itemAvailability == true && oscar.potion.potionSlotFull == false)
+				{
+					oscar.potion.potionSlotFull = true;							//ryggsäck nu full
+					oscar.potion.potionName = roomContent.items[0].itemName;	//den innehåller en item som heter 
+					roomContent.items[loop].itemAvailability = false;			//itemet finns nu inte tillgängligt i rummet
+
+					std::cout << "Your xxx olympics backpack now contains" << oscar.potion.potionName << '\n';
+				}
+
+
+			}
+		} // gör ett system så att om inget kommando passar skicka fel
 	}
 
 	if (currentCommand == "empty backpack")
@@ -185,8 +218,6 @@ void command(Room roomContent) // **************' Gör så att man kan ändra room 
 			std::cout << "Your backpack is already empty! \n";
 		}
 	}
-
-
 }
 
 void roomList() // rumLista för att navigera genom alla rum.
@@ -211,12 +242,13 @@ void closet()
 			//Closet start item
 			closetContent.items[0].itemName = "boxers";
 			closetContent.items[0].itemClass = "backpack";
+			closetContent.items[1].itemName = "butterKnife";
 
 			std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
-				<< "You see a pair of bamboo boxershorts that your dads cousin manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
-				<< "This item is of type " << closetContent.items[0].itemClass << '\n';
-				std::cout << "You only have one itemslot in your xxx olypics backpack if you wish to pick up another item write empty backpack and then pick up..." << '\n'
-				<< "Now try pick up and drop the boxers\n" << '\n';
+			<< "You see a pair of bamboo boxershorts that your dads cousin manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
+			<< "This item is of type " << closetContent.items[0].itemClass << '\n';
+			std::cout << "You only have one itemslot in your xxx olypics backpack if you wish to pick up another item write empty backpack and then pick up..." << '\n'
+			<< "Now try pick up and drop the boxers\n" << '\n';
 
 
 
