@@ -7,9 +7,11 @@
 
 
 //Globals
-int currentRoom{ 0 };					//the room we are in
+int x{ 1 };
+int y{ 2 };
+int z{ 2 };
+									//the room we are in
 int currentRoomDialogSegment{ 1 };	// The dialog segment
-
 
 //Structs
 struct Backpack
@@ -48,6 +50,7 @@ struct Character					//Oscar
 	int maxStamina{};
 
 	bool firstTimeInCloset{ true };
+	bool firstTimeInRoom{ true };
 };
 
 
@@ -82,10 +85,14 @@ void command(Room x);
 void purge();
 void closet();
 void start();
+void svante();
+void oscarsRoom();
 
 //Namepaces
 using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+
+
 using std::chrono::system_clock;
 
 
@@ -111,22 +118,18 @@ void start()
 	{
 		std::cout << "Enter the word " << '"' << "start" << '"' << " to start the game: ";
 		std::cin >> temp;
-		
 
-		if (std::cin.fail())
-		{
-			purge();
-			std::cerr << "Erronious input! Read the instructions again. \n";
+		if (temp == "START" || temp == "start" || temp == "Start")
+			{
+			std::cout << "Welcome to Oscars Life!";
+			go = true;
+			sleep_for(3s);
+			system("CLS");
 		}
 		else
 		{
-			if (temp == "START" || temp == "start" || temp == "Start")
-			{
-				std::cout << "Welcome to Oscars Life!";
-				go = true;
-				sleep_for(3s);
-				system("CLS");
-			}
+			purge();
+			std::cerr << "Erronious input! Read the instructions again. \n";
 		}
 
 	} while (go != true);
@@ -134,7 +137,7 @@ void start()
 
 
 	roomList();
-
+	return;
 }
 
 void command(Room roomContent)
@@ -143,6 +146,7 @@ void command(Room roomContent)
 	getline(std::cin, currentCommand);
 	std::string wholeCommand{};
 	int contentArraySize{ 5 };//gör till dynamisk array eller vector.
+	bool commandFound{ false };
 
 	// gör en if för om början på commando == pick up
 	if (currentCommand.substr(0, 7) == "pick up")								// pick up command
@@ -165,6 +169,8 @@ void command(Room roomContent)
 
 					std::cout << "Your xxx olympics backpack now contains " << oscar.backpack.itemName << '\n';
 				}
+				
+				commandFound = true;
 			}	
 
 			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "weapon")
@@ -182,7 +188,7 @@ void command(Room roomContent)
 					std::cout << "Your hand now contains" << oscar.weapon.weaponName << '\n';
 				}
 
-
+				commandFound = true;
 			}
 
 			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "potion")
@@ -199,10 +205,14 @@ void command(Room roomContent)
 
 					std::cout << "Your xxx olympics backpack now contains" << oscar.potion.potionName << '\n';
 				}
-
-
+				commandFound = true;
 			}
+
 		} // gör ett system så att om inget kommando passar skicka fel
+		if (commandFound != true)
+		{
+			std::cout << "That item doesn't exist! \n \n";
+		}
 	}
 
 	if (currentCommand == "empty backpack")
@@ -218,18 +228,22 @@ void command(Room roomContent)
 			std::cout << "Your backpack is already empty! \n";
 		}
 	}
+	return;
 }
 
 void roomList() // rumLista för att navigera genom alla rum.
 {
-	switch (currentRoom)
-	case(0):
+	if(z == 2 && y == 2 && x == 1)
 	{
 		closet();
 	}
+	if (z == 2 && y == 2 && x == 2)
+	{
+		oscarsRoom();
+	}
 
 
-
+	return;
 }
 
 void closet()
@@ -243,6 +257,7 @@ void closet()
 			closetContent.items[0].itemName = "boxers";
 			closetContent.items[0].itemClass = "backpack";
 			closetContent.items[1].itemName = "butterKnife";
+			closetContent.items[1].itemClass = "weapon";
 
 			std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
 			<< "You see a pair of bamboo boxershorts that your dads cousin manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
@@ -265,16 +280,47 @@ void closet()
 
 			}
 
-			std::cout << "Good you dropped the underware. You don't want to walk around with those all the time.";
+			std::cout << "Good you dropped the underware. You don't want to walk around with those all the time. \n";
+
+			// stand up command
+
+			std::cout << "You take one step east and get out of the closet. \n"; 
+
+			x++;
+			sleep_for(3s);
+			system("CLS");
 
 	}
 
+	return;
 }
 
+void oscarsRoom()
+{
+	if (oscar.firstTimeInRoom == true)
+	{
+		std::cout << "You see your chonker of a gaming computer that is missing a leg. You have balanced it up with your latest mac computer.\n" <<
+			" The computer is connected to three monitors and dolby surround. Besides the desk you see the gaming chair you won in a poll last year. \n" <<
+			" In the chair lies a hairy beast called Svante and with a swift motion he lunges at you for an attack! \n \n";
+
+		std::cout << "What do you do?: ";
+
+		svante(); //Fortsätt Svante funktionen.
+
+	}
+}
+
+void svante()
+{
+
+
+}
 
 
 void purge()
 {
 	std::cin.clear();
-	std::cin.ignore(1000);
+	std::cin.ignore(1000,'\n');
+	
+	return;
 }
