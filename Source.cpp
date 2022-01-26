@@ -87,6 +87,7 @@ void closet();
 void start();
 void svante();
 void oscarsRoom();
+void compactArray(Room roomContent, int removedItem, int contentArraySize);
 
 //Namepaces
 using namespace std::this_thread;     // sleep_for, sleep_until
@@ -153,13 +154,13 @@ void command(Room roomContent)
 	{
 		for (int loop{ 0 }; loop < contentArraySize; loop++)					//Loop för att jämföra items
 		{
-			wholeCommand = ("pick up " + roomContent.items[loop].itemName);		//Gäller nu for saker av typ Item men behöver göras olika funktioner för vapen och trolldrycker
+			wholeCommand = ("pick up " + roomContent.items[loop].itemName);
 
 			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "backpack")
 			{																	//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
 				if (oscar.backpack.itemSlotFull == true)
 				{
-					std::cerr << "Your back pack is full. Empty the backpack and then try again! \n";
+					std::cerr << "Your back pack already contains one item. Empty the backpack and then try again! \n";
 				}
 				else if (roomContent.items[loop].itemAvailability == true && oscar.backpack.itemSlotFull == false)
 				{				
@@ -175,7 +176,7 @@ void command(Room roomContent)
 
 			if (currentCommand == wholeCommand && roomContent.items[loop].itemClass == "weapon")
 			{																	//System för att kolla vilka items som är tillgängliga samt system för att plock upp skiten och sätta att den itne är tillgänglig längre.
-				if (oscar.backpack.itemSlotFull == true)
+				if (oscar.weapon.weaponSlotFull == true)
 				{
 					std::cerr << "You are already holding a weapon. Drop it and try again! \n";
 				}
@@ -207,13 +208,21 @@ void command(Room roomContent)
 				}
 				commandFound = true;
 			}
+			
+			if (commandFound = true && roomContent.items[loop].itemAvailability == false)
+			{
+				compactArray(roomContent, loop, contentArraySize);
+			}
+					
+		}
 
-		} // gör ett system så att om inget kommando passar skicka fel
 		if (commandFound != true)
 		{
 			std::cout << "That item doesn't exist! \n \n";
 		}
 	}
+		
+
 
 	if (currentCommand == "empty backpack")
 	{
@@ -228,6 +237,7 @@ void command(Room roomContent)
 			std::cout << "Your backpack is already empty! \n";
 		}
 	}
+
 	return;
 }
 
@@ -314,8 +324,28 @@ void svante()
 {
 
 
+
 }
 
+void compactArray(Room roomContent, int loop, int contentArraySize)
+{
+	int lastItemInList{ -1 }; // -1 enkel fix för off by one error
+	for (int l{ 0 }; l < contentArraySize; l++)
+	{
+		if (roomContent.items[l].itemName != "")
+		{
+			lastItemInList++;
+		}
+	}
+		//kopierar över item information till hålet som skapats
+		roomContent.items[loop].itemAvailability = roomContent.items[lastItemInList].itemAvailability;
+		roomContent.items[loop].itemClass = roomContent.items[lastItemInList].itemClass;
+		roomContent.items[loop].itemName = roomContent.items[lastItemInList].itemName;
+		//Sätter sista i listan till tom
+		roomContent.items[lastItemInList].itemAvailability = false;
+		roomContent.items[lastItemInList].itemClass = "";
+		roomContent.items[lastItemInList].itemName = "";
+}
 
 void purge()
 {
