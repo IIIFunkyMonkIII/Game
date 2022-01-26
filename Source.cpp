@@ -7,9 +7,9 @@
 
 
 //Globals
-int x{ 1 };
-int y{ 2 };
-int z{ 2 };
+int X{ 1 };
+int Y{ 2 };
+int Z{ 2 };
 									//the room we are in
 int currentRoomDialogSegment{ 1 };	// The dialog segment
 
@@ -88,6 +88,9 @@ void start();
 void svante();
 void oscarsRoom();
 void compactArray(Room roomContent, int removedItem, int contentArraySize);
+int lastItemInContentArray(Room roomContent, int contentArraySize);
+void next();
+
 
 //Namepaces
 using namespace std::this_thread;     // sleep_for, sleep_until
@@ -147,7 +150,7 @@ void command(Room roomContent)
 	getline(std::cin, currentCommand);
 	std::string wholeCommand{};
 	int contentArraySize{ 5 };//gör till dynamisk array eller vector.
-	bool commandFound{ false };
+	bool commandFound{false};
 
 	// gör en if för om början på commando == pick up
 	if (currentCommand.substr(0, 7) == "pick up")								// pick up command
@@ -209,14 +212,13 @@ void command(Room roomContent)
 				commandFound = true;
 			}
 			
-			if (commandFound = true && roomContent.items[loop].itemAvailability == false)
+			if (commandFound == true && roomContent.items[loop].itemAvailability == false)
 			{
 				compactArray(roomContent, loop, contentArraySize);
-			}
-					
+			}		
 		}
 
-		if (commandFound != true)
+		if (commandFound == false)
 		{
 			std::cout << "That item doesn't exist! \n \n";
 		}
@@ -243,11 +245,11 @@ void command(Room roomContent)
 
 void roomList() // rumLista för att navigera genom alla rum.
 {
-	if(z == 2 && y == 2 && x == 1)
+	if(Z == 2 && Y == 2 && X == 1)
 	{
 		closet();
 	}
-	if (z == 2 && y == 2 && x == 2)
+	if (Z == 2 && Y == 2 && X == 2)
 	{
 		oscarsRoom();
 	}
@@ -296,10 +298,8 @@ void closet()
 
 			std::cout << "You take one step east and get out of the closet. \n"; 
 
-			x++;
-			sleep_for(3s);
-			system("CLS");
-
+			X++;
+			next();
 	}
 
 	return;
@@ -310,8 +310,8 @@ void oscarsRoom()
 	if (oscar.firstTimeInRoom == true)
 	{
 		std::cout << "You see your chonker of a gaming computer that is missing a leg. You have balanced it up with your latest mac computer.\n" <<
-			" The computer is connected to three monitors and dolby surround. Besides the desk you see the gaming chair you won in a poll last year. \n" <<
-			" In the chair lies a hairy beast called Svante and with a swift motion he lunges at you for an attack! \n \n";
+			"The computer is connected to three monitors and dolby surround. Besides the desk you see the gaming chair you won in a poll last year. \n" <<
+			"In the chair lies a hairy beast called Svante and with a swift motion he lunges at you for an attack! \n \n";
 
 		std::cout << "What do you do?: ";
 
@@ -329,7 +329,22 @@ void svante()
 
 void compactArray(Room roomContent, int loop, int contentArraySize)
 {
-	int lastItemInList{ -1 }; // -1 enkel fix för off by one error
+	int lastItemInList{ lastItemInContentArray(roomContent, contentArraySize) };
+
+	//kopierar över item information till hålet som skapats
+	roomContent.items[loop].itemAvailability = roomContent.items[lastItemInList].itemAvailability;
+	roomContent.items[loop].itemClass = roomContent.items[lastItemInList].itemClass;
+	roomContent.items[loop].itemName = roomContent.items[lastItemInList].itemName;
+	//Sätter sista i listan till tom
+	roomContent.items[lastItemInList].itemAvailability = false;
+	roomContent.items[lastItemInList].itemClass = "";
+	roomContent.items[lastItemInList].itemName = "";
+}
+
+int lastItemInContentArray(Room roomContent, int contentArraySize)
+{
+	int lastItemInList{-1};  // -1 enkel fix för off by one error
+
 	for (int l{ 0 }; l < contentArraySize; l++)
 	{
 		if (roomContent.items[l].itemName != "")
@@ -337,14 +352,19 @@ void compactArray(Room roomContent, int loop, int contentArraySize)
 			lastItemInList++;
 		}
 	}
-		//kopierar över item information till hålet som skapats
-		roomContent.items[loop].itemAvailability = roomContent.items[lastItemInList].itemAvailability;
-		roomContent.items[loop].itemClass = roomContent.items[lastItemInList].itemClass;
-		roomContent.items[loop].itemName = roomContent.items[lastItemInList].itemName;
-		//Sätter sista i listan till tom
-		roomContent.items[lastItemInList].itemAvailability = false;
-		roomContent.items[lastItemInList].itemClass = "";
-		roomContent.items[lastItemInList].itemName = "";
+
+	return lastItemInList;
+}
+
+void next()
+{
+	char next{};
+	while (next != 'n')
+	{
+		std::cout << "Press n to continue: ";
+		std::cin >> next;
+	}
+	system("CLS");
 }
 
 void purge()
