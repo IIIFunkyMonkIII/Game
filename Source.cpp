@@ -53,6 +53,7 @@ struct Character					//Oscar
 
 	bool firstTimeInCloset{ true };
 	bool firstTimeInRoom{ true };
+	std::string path{};
 };
 
 
@@ -324,8 +325,6 @@ void oscarsRoom()
 			"The computer is connected to three monitors and dolby surround. Besides the desk you see the gaming chair you won in a poll last year. \n" <<
 			"In the chair lies a hairy beast called Svante and with a swift motion he lunges at you for an attack! \n \n";
 
-		std::cout << "What path do you choose: attack or cuddles?: ";
-		std::cout << "Hell";
 		svante(); //Fortsätt Svante funktionen.
 
 	}
@@ -333,18 +332,18 @@ void oscarsRoom()
 
 void svante()
 {
-	std::string path{};
-	std::cout << path;
+	std::cout << "What path do you choose: attack or cuddles?: ";
 
-	while (path != "cuddles" || path != "attack")
+	while (oscar.path != "cuddles" || oscar.path != "attack")
 	{
-		std::cin >> path;
+		std::cin >> oscar.path;
 
 		if (path == "cuddles")
 		{
 			std::cout << "You chose to embrace the terrible beast and he now follows you because he want's food down in the kitchen \n" <<
 				"Find kibble for Svante within 10 commands or he will eat you!\n" << "The kitchen is down stairs, walk out of the room and you should find them.";
 			
+			command();
 			// få while till command att fungera tills objektivet är uppfyllt
 		}
 		else if (path == "attack")
