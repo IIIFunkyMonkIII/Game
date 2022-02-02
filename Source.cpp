@@ -48,12 +48,15 @@ struct Character					//Oscar
 
 	int maxHealth{ 1 };
 	int maxStamina{};
+	
+	bool alive{true};
 
 	bool svanteAlive{ true };
 
+	bool questInProgress{ true };
 	bool firstTimeInCloset{ true };
 	bool firstTimeInRoom{ true };
-	std::string path{};
+	std::string path{""};
 };
 
 
@@ -92,7 +95,10 @@ void oscarsRoom();
 void compactArray(int removedItem, int contentArraySize);
 int lastItemInContentArray(int contentArraySize);
 void next();
-
+void dead();
+void hallway();
+void stairs();
+void vestibule();
 
 //Namepaces
 using namespace std::this_thread;     // sleep_for, sleep_until
@@ -117,6 +123,8 @@ int main()
 
 void start()
 {
+
+
 	bool go{ false };
 	std::string temp;
 
@@ -124,6 +132,7 @@ void start()
 	{
 		std::cout << "Enter the word " << '"' << "start" << '"' << " to start the game: ";
 		std::cin >> temp;
+		purge();
 
 		if (temp == "START" || temp == "start" || temp == "Start")
 			{
@@ -143,16 +152,22 @@ void start()
 
 
 	roomList();
+
+
+
 	return;
 }
 
-void command() // måste göra en bättre lösning på Room och roomContent så att command blir en kravlös funktion
+void command() 
 {
+	std::cout << "write a command: ";
+
 	std::string currentCommand{};
 	getline(std::cin, currentCommand);
 	std::string wholeCommand{};
 	int size{ 5 };																//gör om ork finns till dynamisk array eller vector.
 	bool commandFound{false};
+
 
 	
 	if (currentCommand.substr(0, 7) == "pick up")								// pick up command
@@ -249,21 +264,112 @@ void command() // måste göra en bättre lösning på Room och roomContent så att co
 			std::cout << "Your backpack is already empty! \n";
 		}
 	}
+	
+	//kommandon för rörelse i rum
+	if (currentCommand == "north") 
+	{
+		Y++;
+		roomList();
+	}
+
+	if (currentCommand == "south") 
+	{
+		Y--;
+		roomList();
+	}
+
+	if (currentCommand == "east")
+	{
+		X++;
+		roomList();
+	}
+
+	if (currentCommand == "west")
+	{
+		X--;
+		roomList();
+	}
+
+	if (currentCommand == "down")
+	{
+		if (X == 3 && Y == 3 && Z == 2)
+		{
+			Z--;
+			roomList();
+		}
+		else
+		{
+			std::cout << "Do you want to sink through the floor?\n";
+		}
+	}
+
+	if (currentCommand == "up")
+	{
+		if (X == 3 && Y == 3 && Z == 1)
+		{
+			Z++;
+			roomList();
+		}
+		else
+		{
+			std::cout << "Didn't know you could fly through cielings\n";
+		}
+
+	}
+	//Lista över kommandon
+	if (currentCommand == "command list")
+	{
+		std::cout << "The possible commands are: \n" << "pick up...\n" << "empty backpack\n" << "north\n" << "south\n" << "east\n" << "west\n" << "kys \n";
+	}
+
+	if (currentCommand == "kys")
+	{
+		oscar.alive = false;
+		dead();
+	}
 
 	return;
 }
 
 void roomList() // rumLista för att navigera genom alla rum.
 {
-	if(Z == 2 && Y == 2 && X == 1)
+
+
+	if (Z == 2 && Y == 2 && X == 1 && Z == 2)						// koordinater som är okej
 	{
 		closet();
 		currentRoom = 0;
 	}
-	if (Z == 2 && Y == 2 && X == 2)
+	else if (X == 2 && Y == 2 && Z == 2) // koordinater som är okej
 	{
 		oscarsRoom();
 		currentRoom = 1;
+	}
+	else if (X == 3 && Y == 2 && Z == 2)
+	{
+		hallway();
+	}
+	else if (X == 3 && Y == 3 && Z == 2)
+	{
+		if (oscar.svanteAlive == true)
+		{
+			std::cout << "Svante gets impatient and decides to push you down the stairs\n";
+			sleep_for(3s);
+			dead();
+		}
+		else
+		{
+			stairs();
+		}
+
+	}
+	else if(X == 2 && Y == 3 && Z == 1)
+	{
+		vestibule();
+	}
+	else
+	{
+		std::cout << "You can't walk that way!\n";
 	}
 
 
@@ -293,32 +399,49 @@ void closet()
 
 			while (oscar.backpack.itemSlotFull != true)
 			{
+				if (oscar.alive == false)
+				{
+					break;
+				}
 				command();
 			}
 			
-			std::cout << "Good you picked up the boxers, now try to drop them again \n";
+			if (oscar.alive == true)
+			{
+				std::cout << "Good you picked up the boxers, now try to drop them again \n";
+			}
+		
 
 			while (oscar.backpack.itemSlotFull != false)
 			{
+				if (oscar.alive == false)
+				{
+					continue;
+				}
 				command();
 
 			}
 
-			std::cout << "Good you dropped the underware. You don't want to walk around with those all the time. \n";
+			if (oscar.alive == true)
+			{
+				std::cout << "Good you dropped the underware. You don't want to walk around with those all the time. \n";
+				std::cout << "You take one step east and get out of the closet. \n";
 
-			// stand up command
+				X++;
+				next();
+				roomList();
+			}
 
-			std::cout << "You take one step east and get out of the closet. \n"; 
-
-			X++;
-			next();
 	}
-
-	return;
+	else
+	{
+		std::cout << "You have entered the closet\n";
+	}
 }
 
 void oscarsRoom()
 {
+
 	if (oscar.firstTimeInRoom == true)
 	{
 		std::cout << "You see your chonker of a gaming computer that is missing a leg. You have balanced it up with your latest mac computer.\n" <<
@@ -328,37 +451,97 @@ void oscarsRoom()
 		svante(); //Fortsätt Svante funktionen.
 
 	}
+	else
+	{
+		std::cout << "You have entered your bedroom\n";
+	}
+	
+}
+
+void hallway()
+{
+	std::cout << "You have entered the hallway \n" << "To the north there is a staircase that leads to the first floor\n";
 }
 
 void svante()
 {
-	std::cout << "What path do you choose: attack or cuddles?: ";
 
-	while (oscar.path != "cuddles" || oscar.path != "attack")
+	while (oscar.path != "cuddles" && oscar.path != "attack")
 	{
-		std::cin >> oscar.path;
+		std::cout << "What path do you choose: attack or cuddles?: ";
+		getline(std::cin, oscar.path);
 
-		if (path == "cuddles")
+		if (oscar.path == "cuddles" || oscar.path == "attack")
 		{
-			std::cout << "You chose to embrace the terrible beast and he now follows you because he want's food down in the kitchen \n" <<
-				"Find kibble for Svante within 10 commands or he will eat you!\n" << "The kitchen is down stairs, walk out of the room and you should find them.";
-			
-			command();
-			// få while till command att fungera tills objektivet är uppfyllt
-		}
-		else if (path == "attack")
-		{
-			std::cout << "You chose to confront the beast and much like in Harry Potter the chambre of secrets you win the fight with the power of love. \n"
-				<< "Svante gets smited in to oblivion and you win the fight but you loose he power of love ability. \n"
-				<< "It's soon time for school and you better get ready by walking there.";
-
+			system("CLS");
+			oscar.firstTimeInRoom = false;
 		}
 		else
 		{
-			std::cout << "You have to pick a path! \n \n";
-			purge();
+			std::cout << "\n Read the instruction again \n";
 		}
 	}
+	
+
+	if (oscar.path == "cuddles")
+	{
+		std::cout << "You chose to embrace the terrible beast and he now follows you because he want's food down in the kitchen \n" <<
+		"Find kibble for Svante within 10 commands or he will eat you!\n" << "The kitchen is down stairs, walk out of the room and you should find them.\n\n";
+
+		int countDown{};
+
+		for (int loop{ 10 }; loop > 0; loop--)
+		{
+			if (oscar.alive == false)
+			{
+				break;
+			}
+			std::cout << "Turns left: " << loop << '\n';
+			countDown = loop;
+			command();
+		}
+
+		if (countDown == 1)
+		{
+			std::cout << "Svande decides to chomp you in the heel. \n" << "The last thing you see before you close your eyes is a little evil smile on his furry face whilst he feasts on your blood.\n";
+			sleep_for(10s);
+			dead();
+		}
+
+
+
+	}
+	else if (oscar.path == "attack")
+	{
+		std::cout << "You chose to confront the beast and much like in Harry Potter the chambre of secrets you win the fight with the power of love. \n"
+			<< "Svante gets smited in to oblivion and you win the fight but you loose he power of love ability. \n"
+			<< "It's soon time for school and you better get ready by walking there.\n\n";
+
+		oscar.weapon = { false, "", 0 };
+		svante.alive = false;
+
+		while (X != 1 && Y != 1 && Z != 3)
+		{
+			if (oscar.alive == false)
+			{
+				continue;
+			}
+			command();
+		}
+	}
+
+	return;
+}
+
+void stairs()
+{
+	std::cout << "You are now down stairs \n";
+
+}
+
+void vestibule()
+{
+	std::cout << "You are now standing in the vestibule \n";
 }
 
 void compactArray(int loop, int contentArraySize)
@@ -373,6 +556,8 @@ void compactArray(int loop, int contentArraySize)
 	roomContent[currentRoom].items[lastItemInList].itemAvailability = false;
 	roomContent[currentRoom].items[lastItemInList].itemClass = "";
 	roomContent[currentRoom].items[lastItemInList].itemName = "";
+
+	return;
 }
 
 int lastItemInContentArray( int contentArraySize)
@@ -397,14 +582,28 @@ void next()
 	{
 		std::cout << "Press n to continue: ";
 		std::cin >> next;
+		purge();
 	}
 	system("CLS");
+
+	return;
 }
 
 void purge()
 {
 	std::cin.clear();
 	std::cin.ignore(1000,'\n');
+	
+	return;
+}
+
+void dead()
+{
+	system("CLS");
+	std::cout << "You dead\n\n";
+	sleep_for(5s);
+	
+	oscar.alive = false;
 	
 	return;
 }
