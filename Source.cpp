@@ -8,7 +8,7 @@
 
 //Globals
 int X{ 1 };
-int Y{ 2 };
+int Y{ 1 };
 int Z{ 2 };							//Array for the contents of the rooms
 int currentRoom{0};					//the room we are in
 int currentRoomDialogSegment{ 1 };	// The dialog segment
@@ -67,8 +67,6 @@ struct Item
 	bool itemAvailability{ true };
 	itemClass_t itemClass{};
 	std::string itemName{};
-
-
 };
 
 
@@ -143,7 +141,6 @@ void start()
 		}
 		else
 		{
-			purge();
 			std::cerr << "Erronious input! Read the instructions again. \n";
 		}
 
@@ -165,7 +162,7 @@ void command()
 	std::string currentCommand{};
 	getline(std::cin, currentCommand);
 	std::string wholeCommand{};
-	int size{ 5 };																//gör om ork finns till dynamisk array eller vector.
+	int size{ 5 };																
 	bool commandFound{false};
 
 
@@ -186,7 +183,7 @@ void command()
 				{				
 					oscar.backpack.itemSlotFull = true;							//ryggsäck nu full
 					oscar.backpack.itemName = roomContent[currentRoom].items[loop].itemName;	//den innehåller en item som heter 
-					roomContent[currentRoom].items[loop].itemAvailability = false;				//itemet finns nu inte tillgängligt i rummet
+					roomContent[currentRoom].items[loop].itemAvailability = false;	//itemet finns nu inte tillgängligt i rummet
 
 					std::cout << "Your xxx olympics backpack now contains " << oscar.backpack.itemName << '\n';
 				}
@@ -203,7 +200,7 @@ void command()
 				else if (roomContent[currentRoom].items[loop].itemAvailability == true && oscar.weapon.weaponSlotFull == false)
 				{
 					oscar.weapon.weaponSlotFull = true;							//ryggsäck nu full
-					oscar.weapon.weaponName = roomContent[currentRoom].items[0].itemName;	//den innehåller en item som heter 
+					oscar.weapon.weaponName = roomContent[currentRoom].items[loop].itemName;	//den innehåller en item som heter 
 					roomContent[currentRoom].items[loop].itemAvailability = false;			//itemet finns nu inte tillgängligt i rummet
 
 					std::cout << "Your hand now contains" << oscar.weapon.weaponName << '\n';
@@ -221,7 +218,7 @@ void command()
 				else if (roomContent[currentRoom].items[loop].itemAvailability == true && oscar.potion.potionSlotFull == false)
 				{
 					oscar.potion.potionSlotFull = true;							//ryggsäck nu full
-					oscar.potion.potionName = roomContent[currentRoom].items[0].itemName;	//den innehåller en item som heter 
+					oscar.potion.potionName = roomContent[currentRoom].items[loop].itemName;	//den innehåller en item som heter 
 					roomContent[currentRoom].items[loop].itemAvailability = false;			//itemet finns nu inte tillgängligt i rummet
 
 					std::cout << "Your xxx olympics backpack now contains" << oscar.potion.potionName << '\n';
@@ -264,37 +261,126 @@ void command()
 			std::cout << "Your backpack is already empty! \n";
 		}
 	}
-	
+
+	if (currentCommand == "drop weapon")
+	{
+		int lastElement{ lastItemInContentArray(size) + 1 }; // +1 för att få sista lediga
+
+		if (oscar.weapon.weaponSlotFull == true && lastElement <= 5)
+		{
+			roomContent[currentRoom].items[lastElement].itemName = oscar.weapon.weaponName;
+			roomContent[currentRoom].items[lastElement].itemClass = "weapon";
+			roomContent[currentRoom].items[lastElement].itemAvailability = true;
+
+			oscar.weapon.weaponSlotFull = false;
+			oscar.weapon.weaponName = "";
+			oscar.weapon.weaponDamage = 0;
+		}
+		else if (lastElement > 5)
+		{
+			std::cout << "This room is too cluttered! Clean up or leave it some where else. \n";
+		}
+		else
+		{
+			std::cout << "You arem't carrying a weapon! \n";
+		}
+	}
+
+	if (currentCommand == "drop potion")
+	{
+		int lastElement{ lastItemInContentArray(size) + 1 }; // +1 för att få sista lediga
+
+		if (oscar.potion.potionSlotFull == true && lastElement <= 5)
+		{
+			roomContent[currentRoom].items[lastElement].itemName = oscar.potion.potionName;
+			roomContent[currentRoom].items[lastElement].itemClass = "potion";
+			roomContent[currentRoom].items[lastElement].itemAvailability = true;
+
+			oscar.potion.potionSlotFull = false;
+			oscar.potion.potionName = "";
+			oscar.potion.potionCount = 0;
+		}
+		else if (lastElement > 5)
+		{
+			std::cout << "This room is too cluttered! Clean up or leave it some where else. \n";
+		}
+		else
+		{
+			std::cout << "You aren't carrying any potions! \n";
+		}
+	}
+
+	if (currentCommand == "what items are in the room")
+	{
+		for (int loop{0}; loop <= lastItemInContentArray(size); loop++)
+		{
+			std::cout << roomContent[currentRoom].items[loop].itemName << '\n';
+		}
+
+
+	}
+
 	//kommandon för rörelse i rum
 	if (currentCommand == "north") 
 	{
-		Y++;
-		roomList();
+		if (X == 3 && Y <= 3)
+		{
+			Y++;
+			roomList();
+		}
+		else
+		{
+			std::cout << "there is a wall there\n";
+		}
+
 	}
 
 	if (currentCommand == "south") 
 	{
-		Y--;
-		roomList();
+		if (X == 3 && Y >= 1)
+		{
+			Y--;
+			roomList();
+		}
+		else
+		{
+			std::cout << "there is a wall there\n";
+		}
+
 	}
 
 	if (currentCommand == "east")
 	{
-		X++;
-		roomList();
+		if ( X <= 2) // gilitiga vägar x led
+		{
+			X++;
+			roomList();
+		}
+		else
+		{
+			std::cout << "there is a wall there\n";
+		}
+
 	}
 
 	if (currentCommand == "west")
 	{
-		X--;
-		roomList();
+		if (X > 1) // gilitiga vägar x led
+		{
+			X--;
+			roomList();
+		}
+		else
+		{
+			std::cout << "there is a wall there\n";
+		}
+
 	}
 
 	if (currentCommand == "down")
 	{
 		if (X == 3 && Y == 3 && Z == 2)
 		{
-			Z--;
 			roomList();
 		}
 		else
@@ -319,7 +405,7 @@ void command()
 	//Lista över kommandon
 	if (currentCommand == "command list")
 	{
-		std::cout << "The possible commands are: \n" << "pick up...\n" << "empty backpack\n" << "north\n" << "south\n" << "east\n" << "west\n" << "kys \n";
+		std::cout << "The possible commands are: \n" << "pick up...\n" << "empty backpack\n" << "drop weapon\n" << "drop potion\n" << "north\n" << "south\n" << "east\n" << "west\n" << "up\n" << "down\n" << "what items are in the room\n" << "kys \n \n";
 	}
 
 	if (currentCommand == "kys")
@@ -335,33 +421,54 @@ void roomList() // rumLista för att navigera genom alla rum.
 {
 
 
-	if (Z == 2 && Y == 2 && X == 1 && Z == 2)						// koordinater som är okej
+	if (Z == 2 && Y == 1 && X == 1)						// koordinater som är okej
 	{
-		closet();
 		currentRoom = 0;
+		closet();
 	}
-	else if (X == 2 && Y == 2 && Z == 2) // koordinater som är okej
+	else if (X == 2 && Y == 1 && Z == 2) // koordinater som är okej
 	{
-		oscarsRoom();
 		currentRoom = 1;
+		oscarsRoom();
+	}
+	else if (X == 3 && Y == 1 && Z == 2)
+	{
+		if (oscar.backpack.itemName == "key" || oscar.backpack.itemName == "sledgehammer")
+		{
+			currentRoom = 2;
+			std::cout << "You open the door with " << oscar.backpack.itemName << '\n';
+			hallway();
+
+		}
+		else if( X == 3 && (oscar.backpack.itemName != "key" || oscar.backpack.itemName != "sledgehammer"))
+		{
+			std::cout << "you have to find something to open the door, mybe a sledgehammer or a key\n";
+			X--;
+		}
+		else if (X == 2 && (oscar.backpack.itemName != "key" || oscar.backpack.itemName != "sledgehammer"))
+		{
+			std::cout << "you have to find something to open the door, mybe a sledgehammer or a key\n";
+			X++;
+		}
+
 	}
 	else if (X == 3 && Y == 2 && Z == 2)
 	{
-		hallway();
-	}
-	else if (X == 3 && Y == 3 && Z == 2)
-	{
-		if (oscar.svanteAlive == true)
+		if (oscar.alive == true)
 		{
-			std::cout << "Svante gets impatient and decides to push you down the stairs\n";
-			sleep_for(3s);
-			dead();
+			if (oscar.svanteAlive == true)
+			{
+				std::cout << "Svante gets impatient and decides to push you down the stairs\n";
+				sleep_for(3s);
+				dead();
+			}
+			else
+			{
+				std::cout << "You trip on your pant leg and fall down the stairs \n";
+				sleep_for(3s);
+				dead();
+			}
 		}
-		else
-		{
-			stairs();
-		}
-
 	}
 	else if(X == 2 && Y == 3 && Z == 1)
 	{
@@ -379,59 +486,67 @@ void roomList() // rumLista för att navigera genom alla rum.
 void closet()
 {
 
+	
 	if (oscar.firstTimeInCloset == true)
 	{
-			oscar.firstTimeInCloset = false;
+		roomContent[currentRoom].items[0].itemName = "boxers";
+		roomContent[currentRoom].items[0].itemClass = "backpack";
+		roomContent[currentRoom].items[1].itemName = "butter knife";
+		roomContent[currentRoom].items[1].itemClass = "weapon";
+		roomContent[currentRoom].items[2].itemClass = "backpack";
+		roomContent[currentRoom].items[2].itemName = "key";
 
-			//Closet start item
-			roomContent[currentRoom].items[0].itemName = "boxers";
-			roomContent[currentRoom].items[0].itemClass = "backpack";
-			roomContent[currentRoom].items[1].itemName = "butterKnife";
-			roomContent[currentRoom].items[1].itemClass = "weapon";
+		oscar.firstTimeInCloset = false;
 
-			std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
-			<< "You see a pair of bamboo boxershorts that your dads cousin manufactures write pickup boxers to pick up the bamboo boxershorts that is lying besides you." << '\n'
-			<< "This item is of type " << roomContent[currentRoom].items[0].itemClass << '\n';
-			std::cout << "You only have one itemslot in your xxx olypics backpack if you wish to pick up another item write empty backpack and then pick up..." << '\n'
-			<< "Now try pick up and drop the boxers\n" << '\n';
+		//Closet start item
 
 
+		std::cout << "You lie knocked out on the floor in a confined space under a pile of clothes" << '\n'
+			<< "Write command list to show all the possible commands" << '\n';
+		std::cout << "You only have one itemslot in your xxx olypics backpack you have to drop items if you wish to pick up something else" << '\n'
+			<< "You can try to pick up the boxer shorts in front of you\n" << '\n';
 
-			while (oscar.backpack.itemSlotFull != true)
+
+		while (oscar.backpack.itemSlotFull != true)
+		{
+			if (oscar.alive == false)
 			{
-				if (oscar.alive == false)
-				{
-					break;
-				}
-				command();
+				break;
 			}
+			command();
+		}
+
+		if (oscar.alive == true && oscar.backpack.itemName == "boxers")
+		{
+			std::cout << "Good you picked up the boxers, now try to drop them again \n";
+		}
+
+
+		while (oscar.backpack.itemSlotFull != false)
+		{
+			if (oscar.alive == false)
+			{
+				break;
+			}
+			command();
+
+		}
+
+		if (oscar.alive == true && oscar.backpack.itemSlotFull == false)
+		{
+			std::cout << "Good you dropped the underware. You don't want to walk around with those all the time. \n";
+		}
+
+		if (oscar.alive == true)
+		{
+			std::cout << "You are free to walk around \n";
+		}
+
+		while (oscar.alive == true)
+		{
+			command();
+		}
 			
-			if (oscar.alive == true)
-			{
-				std::cout << "Good you picked up the boxers, now try to drop them again \n";
-			}
-		
-
-			while (oscar.backpack.itemSlotFull != false)
-			{
-				if (oscar.alive == false)
-				{
-					continue;
-				}
-				command();
-
-			}
-
-			if (oscar.alive == true)
-			{
-				std::cout << "Good you dropped the underware. You don't want to walk around with those all the time. \n";
-				std::cout << "You take one step east and get out of the closet. \n";
-
-				X++;
-				next();
-				roomList();
-			}
-
 	}
 	else
 	{
@@ -442,8 +557,12 @@ void closet()
 void oscarsRoom()
 {
 
+
 	if (oscar.firstTimeInRoom == true)
 	{
+		roomContent[currentRoom].items[0].itemClass = "backpack";
+		roomContent[currentRoom].items[0].itemName = "sledgehammer";
+
 		std::cout << "You see your chonker of a gaming computer that is missing a leg. You have balanced it up with your latest mac computer.\n" <<
 			"The computer is connected to three monitors and dolby surround. Besides the desk you see the gaming chair you won in a poll last year. \n" <<
 			"In the chair lies a hairy beast called Svante and with a swift motion he lunges at you for an attack! \n \n";
@@ -513,20 +632,35 @@ void svante()
 	}
 	else if (oscar.path == "attack")
 	{
-		std::cout << "You chose to confront the beast and much like in Harry Potter the chambre of secrets you win the fight with the power of love. \n"
-			<< "Svante gets smited in to oblivion and you win the fight but you loose he power of love ability. \n"
-			<< "It's soon time for school and you better get ready by walking there.\n\n";
+		if (oscar.weapon.weaponName == "Power of Love")
+		{
+			std::cout << "You chose to confront the beast and much like in Harry Potter the chambre of secrets you win the fight with the power of love. \n"
+				<< "Svante gets smited in to oblivion and you win the fight but you loose he power of love ability. \n"
+				<< "It's soon time for school and you better get ready by walking there.\n\n";
+		}
+		else if (oscar.weapon.weaponSlotFull == true)
+		{
+			std::cout << "You kill Svante with your " << oscar.weapon.weaponName <<"!" << "\n" << "Very good, now you can proceed by going to school";
+		}
+		else
+		{
+			std::cout << "You forgor to bring a weapon! \n";
+			dead();
+		}
 
 		oscar.weapon = { false, "", 0 };
-		svante.alive = false;
+		oscar.svanteAlive = false;
 
-		while (X != 1 && Y != 1 && Z != 3)
+		while (Y != 2)
 		{
 			if (oscar.alive == false)
 			{
-				continue;
+				break;
 			}
 			command();
+			std::cout << roomContent[currentRoom].items[0].itemName;
+			std::cout << roomContent[currentRoom].items[1].itemName;
+			std::cout << roomContent[currentRoom].items[2].itemName;
 		}
 	}
 
