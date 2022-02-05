@@ -419,7 +419,6 @@ void command()
 
 void roomList() // rumLista för att navigera genom alla rum.
 {
-	std::cout << Y << X << Z;
 
 	if (Z == 2 && Y == 1 && X == 1)						// koordinater som är okej
 	{
