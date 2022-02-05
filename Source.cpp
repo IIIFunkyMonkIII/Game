@@ -238,7 +238,7 @@ void command()
 		}
 	}
 
-	if (currentCommand == "empty backpack")
+	if (currentCommand == "empty backpack" || currentCommand == "e b")
 	{
 		int lastElement{ lastItemInContentArray(size) + 1 }; // +1 för att få sista lediga
 
@@ -262,7 +262,7 @@ void command()
 		}
 	}
 
-	if (currentCommand == "drop weapon")
+	if (currentCommand == "drop weapon" || currentCommand == "d w")
 	{
 		int lastElement{ lastItemInContentArray(size) + 1 }; // +1 för att få sista lediga
 
@@ -286,7 +286,7 @@ void command()
 		}
 	}
 
-	if (currentCommand == "drop potion")
+	if (currentCommand == "drop potion" || currentCommand == "d p")
 	{
 		int lastElement{ lastItemInContentArray(size) + 1 }; // +1 för att få sista lediga
 
@@ -310,7 +310,7 @@ void command()
 		}
 	}
 
-	if (currentCommand == "what items are in the room")
+	if (currentCommand == "what items are in the room" || currentCommand == "look")
 	{
 		for (int loop{0}; loop <= lastItemInContentArray(size); loop++)
 		{
@@ -321,7 +321,7 @@ void command()
 	}
 
 	//kommandon för rörelse i rum
-	if (currentCommand == "north") 
+	if (currentCommand == "north" || currentCommand == "n")
 	{
 		if (X == 3 && Y <= 3)
 		{
@@ -335,9 +335,9 @@ void command()
 
 	}
 
-	if (currentCommand == "south") 
+	if (currentCommand == "south" || currentCommand == "s")
 	{
-		if (X == 3 && Y >= 1)
+		if (X == 3 && Y > 1)
 		{
 			Y--;
 			roomList();
@@ -349,7 +349,7 @@ void command()
 
 	}
 
-	if (currentCommand == "east")
+	if (currentCommand == "east" || currentCommand == "e")
 	{
 		if ( X <= 2) // gilitiga vägar x led
 		{
@@ -363,7 +363,7 @@ void command()
 
 	}
 
-	if (currentCommand == "west")
+	if (currentCommand == "west" || currentCommand == "w")
 	{
 		if (X > 1) // gilitiga vägar x led
 		{
@@ -377,7 +377,7 @@ void command()
 
 	}
 
-	if (currentCommand == "down")
+	if (currentCommand == "down" || currentCommand == "d")
 	{
 		if (X == 3 && Y == 3 && Z == 2)
 		{
@@ -389,7 +389,7 @@ void command()
 		}
 	}
 
-	if (currentCommand == "up")
+	if (currentCommand == "up"|| currentCommand == "u")
 	{
 		if (X == 3 && Y == 3 && Z == 1)
 		{
@@ -403,9 +403,9 @@ void command()
 
 	}
 	//Lista över kommandon
-	if (currentCommand == "command list")
+	if (currentCommand == "command list" || currentCommand == "cmds")
 	{
-		std::cout << "The possible commands are: \n" << "pick up...\n" << "empty backpack\n" << "drop weapon\n" << "drop potion\n" << "north\n" << "south\n" << "east\n" << "west\n" << "up\n" << "down\n" << "what items are in the room\n" << "kys \n \n";
+		std::cout << "The possible commands are: \n" << "pick up...\n" << "empty backpack\n" << "drop weapon\n" << "drop potion\n" << "north\n" << "south\n" << "east\n" << "west\n" << "up\n" << "down\n" << "what items are in the room/look\n" << "kys \n \n";
 	}
 
 	if (currentCommand == "kys")
@@ -419,7 +419,7 @@ void command()
 
 void roomList() // rumLista för att navigera genom alla rum.
 {
-
+	std::cout << Y << X << Z;
 
 	if (Z == 2 && Y == 1 && X == 1)						// koordinater som är okej
 	{
@@ -635,7 +635,7 @@ void svante()
 		if (oscar.weapon.weaponName == "Power of Love")
 		{
 			std::cout << "You chose to confront the beast and much like in Harry Potter the chambre of secrets you win the fight with the power of love. \n"
-				<< "Svante gets smited in to oblivion and you win the fight but you loose he power of love ability. \n"
+				<< "Svante gets smited in to oblivion and you win the fight but you loose the power of love ability. \n"
 				<< "It's soon time for school and you better get ready by walking there.\n\n";
 		}
 		else if (oscar.weapon.weaponSlotFull == true)
